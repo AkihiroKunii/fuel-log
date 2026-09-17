@@ -43,3 +43,22 @@ export function lastNonNullPoint(points: readonly ChartPoint[]): ChartPoint | un
   }
   return undefined;
 }
+
+/**
+ * 値のある点と点の間に、値の無い点(部分給油や金額未入力の行)が挟まっている区間があるか。
+ * グラフはその区間を破線でつなぐので、破線の意味の注記を出すかどうかの判定に使う。
+ * 先頭・末尾にだけ値の無い点がある場合は、つなぐ相手が無いので false。
+ */
+export function hasBridgedGap(points: readonly ChartPoint[]): boolean {
+  let seenValue = false;
+  let pendingGap = false;
+  for (const p of points) {
+    if (p.value === null) {
+      if (seenValue) pendingGap = true;
+    } else {
+      if (pendingGap) return true;
+      seenValue = true;
+    }
+  }
+  return false;
+}

@@ -75,6 +75,20 @@
   margin-top: 4px;
 }
 
+/* 破線(値の無い記録をまたぐ区間)の意味の注記。該当する区間が期間内にあるときだけ出る */
+.chart-gap-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 0 36px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.chart-gap-note svg {
+  flex: 0 0 auto;
+}
+
 .chart-empty {
   padding: 40px 0;
   text-align: center;
@@ -157,6 +171,12 @@
 
 .chart-tooltip-value-unit {
   font-size: 11px;
+  color: var(--text-2);
+}
+
+.chart-tooltip-null {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-2);
 }
 

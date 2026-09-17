@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { chartColors } from '../../core/theme';
 import type { DerivedFillup } from '../../core/types';
-import { average, dotRadius, type ChartPoint } from './chartSeries';
+import { average, dotRadius, hasBridgedGap, type ChartPoint } from './chartSeries';
 import { DAY_MS, buildTimeTicks, buildYTicks, formatTick, yDomain } from './ticks';
 
 export interface MetricLineChartProps {
@@ -37,6 +37,13 @@ export interface MetricLineChartProps {
   detailLine: (row: DerivedFillup) => string;
   /** role="img" に付ける aria-label。 */
   ariaLabel: string;
+  /**
+   * 値の無い点(部分給油・金額未入力の行)をまたぐ区間は破線でつなぐ。その破線の意味を説明する注記。
+   * 期間内にそういう区間があるときだけグラフの下に出す。
+   */
+  gapNote: string;
+  /** 値の無い点のツールチップに、値の代わりに出す説明(例: '部分給油（次の満タンに合算）')。 */
+  nullLabel: (row: DerivedFillup) => string;
 }
 
 function ChartTooltipContent({
@@ -46,6 +53,7 @@ function ChartTooltipContent({
   unit,
   valueFormatter,
   detailLine,
+  nullLabel,
 }: {
   active: boolean;
   payload: TooltipPayload;
@@ -53,19 +61,24 @@ function ChartTooltipContent({
   unit: string;
   valueFormatter: (v: number | null | undefined) => string;
   detailLine: (row: DerivedFillup) => string;
+  nullLabel: (row: DerivedFillup) => string;
 }) {
   if (!active || payload.length === 0) return null;
-  const point = payload[0]?.payload as ChartPoint | undefined;
+  const point = payload.find((entry) => entry?.payload)?.payload as ChartPoint | undefined;
   if (!point) return null;
 
   return (
     <div className="chart-tooltip">
       <div className="chart-tooltip-date">{point.row.date}</div>
-      <div className="chart-tooltip-value">
-        <span className="chart-tooltip-swatch" style={{ background: color }} aria-hidden="true" />
-        <span className="chart-tooltip-value-num">{valueFormatter(point.value)}</span>
-        <span className="chart-tooltip-value-unit">{unit}</span>
-      </div>
+      {point.value === null ? (
+        <div className="chart-tooltip-null">{nullLabel(point.row)}</div>
+      ) : (
+        <div className="chart-tooltip-value">
+          <span className="chart-tooltip-swatch" style={{ background: color }} aria-hidden="true" />
+          <span className="chart-tooltip-value-num">{valueFormatter(point.value)}</span>
+          <span className="chart-tooltip-value-unit">{unit}</span>
+        </div>
+      )}
       <div className="chart-tooltip-detail">{detailLine(point.row)}</div>
       {point.row.mergedPartials > 0 && (
         <div className="chart-tooltip-merged">部分給油 {point.row.mergedPartials} 回分を合算</div>
@@ -120,6 +133,8 @@ export function MetricLineChart({
   valueFormatter,
   detailLine,
   ariaLabel,
+  gapNote,
+  nullLabel,
 }: MetricLineChartProps) {
   const spanDays = (endMs - startMs) / DAY_MS;
 
@@ -134,6 +149,7 @@ export function MetricLineChart({
   const yTicks = useMemo(() => buildYTicks(yRange), [yRange]);
   const avg = useMemo(() => (values.length > 1 ? average(values) : null), [values]);
   const { r, ring } = useMemo(() => dotRadius(values.length), [values.length]);
+  const showGapNote = useMemo(() => hasBridgedGap(points), [points]);
 
   const renderDot = (dotProps: DotItemDotProps): ReactNode => {
     const { cx, cy, index, value } = dotProps;
@@ -184,6 +200,8 @@ export function MetricLineChart({
             tickLine={false}
           />
           <Tooltip
+            // 値の無い点(部分給油など)でもツールチップを出し、値の代わりに理由を表示する
+            filterNull={false}
             cursor={{ stroke: chartColors.grid, strokeWidth: 1 }}
             content={({ active, payload }) => (
               <ChartTooltipContent
@@ -193,6 +211,7 @@ export function MetricLineChart({
                 unit={unit}
                 valueFormatter={valueFormatter}
                 detailLine={detailLine}
+                nullLabel={nullLabel}
               />
             )}
           />
@@ -207,6 +226,26 @@ export function MetricLineChart({
               )}
             />
           )}
+          {/*
+            値の無い点(部分給油・金額未入力の行)をまたぐ区間を破線でつなぐ(2026-09-18 本人決定)。
+            同じデータを connectNulls の破線で下の層に描き、その上に実線(connectNulls なし)を重ねる。
+            実線がある区間では破線は隠れ、実線が切れる区間でだけ破線が見える。
+          */}
+          <Line
+            dataKey="value"
+            type="linear"
+            stroke={color}
+            strokeWidth={2}
+            strokeOpacity={0.75}
+            strokeDasharray="5 4"
+            connectNulls
+            isAnimationActive={false}
+            dot={false}
+            activeDot={false}
+            legendType="none"
+            tooltipType="none"
+            zIndex={350}
+          />
           <Line
             dataKey="value"
             type="linear"
@@ -221,6 +260,23 @@ export function MetricLineChart({
           />
         </LineChart>
       </ResponsiveContainer>
+      {showGapNote && (
+        <p className="chart-gap-note">
+          <svg width="22" height="6" viewBox="0 0 22 6" aria-hidden="true">
+            <line
+              x1="1"
+              y1="3"
+              x2="21"
+              y2="3"
+              stroke={color}
+              strokeWidth="2"
+              strokeOpacity="0.75"
+              strokeDasharray="5 4"
+            />
+          </svg>
+          {gapNote}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { average, buildSeries, dotRadius, lastNonNullPoint } from './chartSeries';
+import {
+  average,
+  buildSeries,
+  dotRadius,
+  hasBridgedGap,
+  lastNonNullPoint,
+  type ChartPoint,
+} from './chartSeries';
 import type { DerivedFillup } from '../../core/types';
 
 function row(p: { id: number; date: string; kmPerL?: number | null }): DerivedFillup {
@@ -88,5 +95,26 @@ describe('lastNonNullPoint', () => {
 
   it('空配列なら undefined', () => {
     expect(lastNonNullPoint([])).toBeUndefined();
+  });
+});
+
+describe('hasBridgedGap', () => {
+  const pt = (value: number | null): ChartPoint => ({ t: 0, value, row: {} as ChartPoint['row'] });
+
+  it('値のある点の間に値の無い点が挟まっていれば true(部分給油をまたぐ区間)', () => {
+    expect(hasBridgedGap([pt(14.3), pt(null), pt(14.6)])).toBe(true);
+    expect(hasBridgedGap([pt(14.3), pt(null), pt(null), pt(14.6)])).toBe(true);
+  });
+
+  it('値の無い点が先頭・末尾にしか無ければ false(つなぐ相手が無い)', () => {
+    expect(hasBridgedGap([pt(null), pt(14.3), pt(14.6)])).toBe(false);
+    expect(hasBridgedGap([pt(14.3), pt(14.6), pt(null)])).toBe(false);
+    expect(hasBridgedGap([pt(null), pt(14.3), pt(null)])).toBe(false);
+  });
+
+  it('値の無い点が無い・点が無い・全部 null なら false', () => {
+    expect(hasBridgedGap([pt(14.3), pt(14.6)])).toBe(false);
+    expect(hasBridgedGap([])).toBe(false);
+    expect(hasBridgedGap([pt(null), pt(null)])).toBe(false);
   });
 });

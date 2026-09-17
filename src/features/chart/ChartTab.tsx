@@ -9,7 +9,14 @@ import { Segmented } from '../../app/Segmented';
 import { useToday } from '../../app/useToday';
 import { db } from '../../core/db';
 import { dateToMs, rangeStart } from '../../core/dates';
-import { formatKm, formatKmPerL, formatLiters, formatYen, formatYenPerKm, formatYenPerL } from '../../core/format';
+import {
+  formatKm,
+  formatKmPerL,
+  formatLiters,
+  formatYen,
+  formatYenPerKm,
+  formatYenPerL,
+} from '../../core/format';
 import { deriveFillups, filterByRange, periodStats } from '../../core/fuel';
 import { RANGE_OPTIONS, loadRange, saveRange } from '../../core/settings';
 import { chartColors } from '../../core/theme';
@@ -133,6 +140,8 @@ export function ChartTab() {
                   detailLine={(row: DerivedFillup) =>
                     `${formatKm(row.tripKm)} km ・ ${formatLiters(row.liters)} L`
                   }
+                  gapNote="破線は、部分給油をまたいだ区間です"
+                  nullLabel={() => '部分給油（次の満タン給油に合算）'}
                   ariaLabel={`燃費の推移。期間内 ${stats.count} 件${
                     stats.count > 1 && stats.avgKmPerL !== null
                       ? `、平均 ${formatKmPerL(stats.avgKmPerL)} km/L`
@@ -174,6 +183,14 @@ export function ChartTab() {
                   unit={costUnit}
                   valueFormatter={costFormatter}
                   detailLine={(row: DerivedFillup) => `${formatYen(row.yen)}円`}
+                  gapNote={
+                    costMetric === 'yenPerL'
+                      ? '破線は、金額の記録が無い給油をまたいだ区間です'
+                      : '破線は、部分給油や金額の記録が無い給油をまたいだ区間です'
+                  }
+                  nullLabel={(row: DerivedFillup) =>
+                    row.yen === null ? '金額の記録なし' : '部分給油（次の満タン給油に合算）'
+                  }
                   ariaLabel={`${costUnit}の推移。期間内 ${costValues.length} 件${
                     costAvg !== null ? `、平均 ${costFormatter(costAvg)} ${costUnit}` : ''
                   }`}
