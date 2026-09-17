@@ -34,7 +34,10 @@ function AppShell() {
     <AppNavContext.Provider value={nav}>
       <div className="app">
         <main className="app-main">
-          {tab === 'record' && <RecordTab />}
+          {/* 記録タブは隠すだけでアンマウントしない(グラフや一覧を見て戻っても入力途中の値が残る) */}
+          <div hidden={tab !== 'record'}>
+            <RecordTab />
+          </div>
           {tab === 'chart' && (
             <Suspense fallback={null}>
               <ChartTab />

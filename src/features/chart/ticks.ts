@@ -23,9 +23,10 @@ function mondayOnOrAfter(ms: number): number {
   return dayStart + diffToMonday * DAY_MS;
 }
 
-function weeklyTicks(startMs: number, endMs: number): number[] {
+/** everyNWeeks 週ごとの月曜。 */
+function weeklyTicks(startMs: number, endMs: number, everyNWeeks = 1): number[] {
   const out: number[] = [];
-  for (let t = mondayOnOrAfter(startMs); t <= endMs; t += 7 * DAY_MS) out.push(t);
+  for (let t = mondayOnOrAfter(startMs); t <= endMs; t += everyNWeeks * 7 * DAY_MS) out.push(t);
   return out;
 }
 
@@ -41,44 +42,49 @@ function monthlyTicks(startMs: number, endMs: number, everyNMonths: number): num
   return out;
 }
 
-function yearlyTicks(startMs: number, endMs: number): number[] {
+/** everyNYears の倍数年の年初。 */
+function yearlyTicks(startMs: number, endMs: number, everyNYears = 1): number[] {
   const s = utcParts(startMs);
-  const firstYear = s.m === 0 && s.d === 1 ? s.y : s.y + 1;
+  let y = s.m === 0 && s.d === 1 ? s.y : s.y + 1;
+  while (y % everyNYears !== 0) y += 1;
   const out: number[] = [];
-  for (let y = firstYear, t = monthStart(y, 0); t <= endMs; y += 1, t = monthStart(y, 0)) {
+  for (let t = monthStart(y, 0); t <= endMs; y += everyNYears, t = monthStart(y, 0)) {
     out.push(t);
   }
   return out;
 }
 
+/** 目盛の上限。幅375pxの画面でラベル('M/D' や 'YY/M')が重ならずに並ぶ本数。 */
+const MAX_TIME_TICKS = 7;
+
 /**
- * 期間の長さに応じた、4〜7個程度の「切りのよい」目盛(UTC epoch ms)。
- * 〜45日: 週単位(月曜) / 〜200日: 月初 / 〜800日: 3か月ごとの月初 / 〜1500日: 半年ごと(1・7月) /
- * それ以上: 年初。目盛が3本未満になる場合は1段階細かい間隔にフォールバックする
- * (境界付近では上限7本を若干超えることがある)。
+ * 期間の長さに応じた「切りのよい」目盛(UTC epoch ms)。
+ * 細かい順に 週(月曜) → 2週 → 月初 → 2か月 → 3か月 → 半年 → 年初 → 2年 → 5年 → 10年 を試し、
+ * **MAX_TIME_TICKS 本以下に収まる最も細かい刻み**を使う。
+ * 上限を超える本数を返すと Recharts が重なったラベルを間引き、目盛の間隔が不揃いになる。
  */
 export function buildTimeTicks(startMs: number, endMs: number): number[] {
   if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
     return [startMs];
   }
-  const spanDays = (endMs - startMs) / DAY_MS;
-
-  if (spanDays <= 45) return weeklyTicks(startMs, endMs);
-
-  if (spanDays <= 200) {
-    const t = monthlyTicks(startMs, endMs, 1);
-    return t.length >= 3 ? t : weeklyTicks(startMs, endMs);
+  const ladder: Array<() => number[]> = [
+    () => weeklyTicks(startMs, endMs, 1),
+    () => weeklyTicks(startMs, endMs, 2),
+    () => monthlyTicks(startMs, endMs, 1),
+    () => monthlyTicks(startMs, endMs, 2),
+    () => monthlyTicks(startMs, endMs, 3),
+    () => monthlyTicks(startMs, endMs, 6),
+    () => yearlyTicks(startMs, endMs, 1),
+    () => yearlyTicks(startMs, endMs, 2),
+    () => yearlyTicks(startMs, endMs, 5),
+    () => yearlyTicks(startMs, endMs, 10),
+  ];
+  let ticks: number[] = [];
+  for (const build of ladder) {
+    ticks = build();
+    if (ticks.length <= MAX_TIME_TICKS) break;
   }
-  if (spanDays <= 800) {
-    const t = monthlyTicks(startMs, endMs, 3);
-    return t.length >= 3 ? t : monthlyTicks(startMs, endMs, 1);
-  }
-  if (spanDays <= 1500) {
-    const t = monthlyTicks(startMs, endMs, 6);
-    return t.length >= 3 ? t : monthlyTicks(startMs, endMs, 3);
-  }
-  const t = yearlyTicks(startMs, endMs);
-  return t.length >= 3 ? t : monthlyTicks(startMs, endMs, 6);
+  return ticks;
 }
 
 /** 目盛ラベル。期間が約200日以下なら 'M/D'、それより長ければ 'YY/M'(例 '25/4')。 */

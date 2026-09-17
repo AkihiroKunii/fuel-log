@@ -68,7 +68,10 @@ function parseRow(v: unknown, index: number): { ok: true; row: StoredFillup } | 
   const bad = (field: string) => ({ ok: false as const, error: `fillups[${index}] の ${field} が不正です` });
   if (!isRecord(v)) return { ok: false, error: `fillups[${index}] が不正です` };
 
-  if (!isFiniteNumber(v.id) || !Number.isInteger(v.id) || v.id < 1) return bad('id');
+  // 上限も見る: 2^53 を超える id を復元すると IndexedDB の採番器が壊れ、以後の保存が永久に失敗する
+  if (!isFiniteNumber(v.id) || !Number.isInteger(v.id) || v.id < 1 || v.id > Number.MAX_SAFE_INTEGER) {
+    return bad('id');
+  }
   if (typeof v.date !== 'string' || !isValidDateStr(v.date)) return bad('date');
   if (!isFiniteNumber(v.tripKm) || !inRange(v.tripKm, LIMITS.tripKm.min, LIMITS.tripKm.max)) return bad('tripKm');
   if (!isFiniteNumber(v.liters) || !inRange(v.liters, LIMITS.liters.min, LIMITS.liters.max)) return bad('liters');
@@ -113,7 +116,10 @@ export function parseBackup(text: string): { ok: true; backup: BackupFile } | { 
   if (data.schemaVersion !== BACKUP_SCHEMA_VERSION) {
     return { ok: false, error: `対応していないバックアップ形式です（schemaVersion: ${String(data.schemaVersion)}）` };
   }
-  if (typeof data.exportedAt !== 'string') return { ok: false, error: 'バックアップの形式が正しくありません' };
+  // 日時として読めることまで見る(復元の確認メッセージに書き出し日を出すため、読めないと復元できなくなる)
+  if (typeof data.exportedAt !== 'string' || Number.isNaN(new Date(data.exportedAt).getTime())) {
+    return { ok: false, error: 'バックアップの書き出し日時（exportedAt）が正しくありません' };
+  }
 
   const tables = data.tables;
   if (!isRecord(tables) || !Array.isArray(tables.fillups) || !Array.isArray(tables.settings)) {

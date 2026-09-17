@@ -141,6 +141,32 @@ describe('parseBackup', () => {
     expect(parseBackup(jsonWithRow({ yen: null })).ok).toBe(true);
   });
 
+  it('id が安全な整数の範囲を超えていればエラー(復元すると採番器が壊れ、以後の保存が失敗し続けるため)', () => {
+    for (const id of [1e300, Number.MAX_SAFE_INTEGER + 1]) {
+      const parsed = parseBackup(jsonWithRow({ id }));
+      expect(parsed.ok).toBe(false);
+      if (parsed.ok) return;
+      expect(parsed.error).toContain('id');
+    }
+    expect(parseBackup(jsonWithRow({ id: Number.MAX_SAFE_INTEGER })).ok).toBe(true);
+  });
+
+  it('exportedAt が日時として読めなければエラー(確認メッセージに書き出し日を出せないため)', () => {
+    for (const exportedAt of ['', 'not-a-date', '2026-13-40T00:00:00Z']) {
+      const parsed = parseBackup(
+        JSON.stringify({
+          app: 'fuel-log',
+          schemaVersion: 1,
+          exportedAt,
+          tables: { fillups: [row()], settings: [] },
+        }),
+      );
+      expect(parsed.ok).toBe(false);
+      if (parsed.ok) return;
+      expect(parsed.error).toContain('exportedAt');
+    }
+  });
+
   it('id が重複していればエラー', () => {
     const text = JSON.stringify({
       app: 'fuel-log',

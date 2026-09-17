@@ -47,6 +47,22 @@ input {
   font-family: inherit;
 }
 
+/* iOS のタッチ操作向け: タップ時の灰色ハイライトを消し、ダブルタップズームの待ち時間を無くし、
+   ボタンやタブの長押しで文字選択が始まらないようにする */
+button,
+a,
+label,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button,
+.tab-bar {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 h1,
 h2,
 h3,
@@ -229,6 +245,11 @@ p {
 }
 
 .field-inline .field-input-wrap input[type='date'] {
+  text-align: right;
+}
+
+/* iOS Safari は日付の値を内部の擬似要素で描くので、右寄せはそちらにも指定する */
+.field-inline .field-input-wrap input[type='date']::-webkit-date-and-time-value {
   text-align: right;
 }
 

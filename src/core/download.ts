@@ -30,19 +30,21 @@ function downloadViaAnchor(blob: Blob, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+export type SaveResult = 'saved' | 'shared' | 'cancelled' | 'unconfirmed';
+
 /**
  * テキストをファイルとして保存する。
- * 'shared' = Web Share API で保存した / 'cancelled' = 共有シートで取り消された /
- * 'saved' = <a download> で保存した。
+ * 'shared' = Web Share API(共有シート)で渡した / 'cancelled' = 共有シートで取り消された /
+ * 'saved' = <a download> で保存した(iOS 以外) /
+ * 'unconfirmed' = iOS で共有シートを使えず <a download> を試みた。iOS のホーム画面PWAでは
+ * これが効かないことがあり、保存できたかをアプリ側では確かめられない。呼び出し側は
+ * 「書き出しました」と言い切らず、確認を促すこと(バックアップが取れたと誤認させない)。
  */
-export async function saveTextFile(
-  filename: string,
-  text: string,
-  mime: string,
-): Promise<'saved' | 'shared' | 'cancelled'> {
+export async function saveTextFile(filename: string, text: string, mime: string): Promise<SaveResult> {
   const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+  const ios = isIos();
 
-  if (isIos() && typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
+  if (ios && typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
     const file = new File([blob], filename, { type: mime });
     if (navigator.canShare({ files: [file] })) {
       try {
@@ -56,5 +58,5 @@ export async function saveTextFile(
   }
 
   downloadViaAnchor(blob, filename);
-  return 'saved';
+  return ios ? 'unconfirmed' : 'saved';
 }

@@ -78,20 +78,21 @@ interface AvgLabelProps {
   viewBox?: { x?: number; y?: number; width?: number };
 }
 
-// グラフ上端の余白(LineChart の margin.top と同じ値)
-const PLOT_TOP = 10;
+// グラフ上端の余白(LineChart の margin.top)。平均線のラベルをこの帯に置く。
+const PLOT_TOP = 26;
 
 /**
- * 平均線の直接ラベル(破線のキー + 「平均 14.2」)。プロット領域の右上に置く。
- * Y軸の範囲は最大値より 1 以上広く取っている(yDomain)ので、上端の帯にはデータの線や点が来ない。
- * 線のすぐ脇に置くとデータと重なって読めなくなるため、重ならないことが保証される場所に固定する。
+ * 平均線の直接ラベル(破線のキー + 「平均 14.2」)。プロット領域の**外側**(上の余白の右端)に置く。
+ * 線の脇やプロット領域の内側に置くと、データの点や線と重なって読めなくなる場合がある
+ * (Y軸の余裕はデータ単位、ラベルの高さは px 固定なので、内側では重ならない保証ができない)。
+ * 余白の帯にはデータが絶対に来ない。
  */
 function AvgLabel({ viewBox, text }: AvgLabelProps & { text: string }) {
   if (!viewBox || typeof viewBox.x !== 'number' || typeof viewBox.width !== 'number') {
     return null;
   }
   const right = viewBox.x + viewBox.width - 2;
-  const baseline = PLOT_TOP + 12;
+  const baseline = PLOT_TOP - 9;
   return (
     <g>
       <line

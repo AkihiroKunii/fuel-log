@@ -24,7 +24,7 @@ describe('buildTimeTicks', () => {
     ]);
   });
 
-  it('45〜200日: 月初(開始日がちょうど月初)', () => {
+  it('約半年: 月初(開始日がちょうど月初)', () => {
     const start = Date.UTC(2024, 0, 1);
     const end = Date.UTC(2024, 5, 15); // 166日間
     expect(buildTimeTicks(start, end)).toEqual([
@@ -37,29 +37,74 @@ describe('buildTimeTicks', () => {
     ]);
   });
 
-  it('45〜200日: 開始日が月初でなければ翌月から', () => {
+  it('約4か月: 月初。開始日が月初でなければ翌月から', () => {
     const start = Date.UTC(2024, 0, 15);
-    const end = Date.UTC(2024, 3, 20); // 96日間
+    const end = Date.UTC(2024, 4, 20); // 126日間
     expect(buildTimeTicks(start, end)).toEqual([
       Date.UTC(2024, 1, 1),
       Date.UTC(2024, 2, 1),
       Date.UTC(2024, 3, 1),
+      Date.UTC(2024, 4, 1),
     ]);
   });
 
-  it('200〜800日: 3か月ごとの月初(1・4・7・10月)', () => {
+  it('45〜100日: 2週ごとの月曜(週単位だと幅375pxでラベルが重なり、間引かれて不揃いになるため)', () => {
+    const start = Date.UTC(2024, 0, 1); // 月曜
+    const end = start + 65 * DAY_MS; // 記録を始めて2〜3か月目の「全期間」に当たる幅
+    expect(buildTimeTicks(start, end)).toEqual([
+      Date.UTC(2024, 0, 1),
+      Date.UTC(2024, 0, 15),
+      Date.UTC(2024, 0, 29),
+      Date.UTC(2024, 1, 12),
+      Date.UTC(2024, 1, 26),
+    ]);
+  });
+
+  it('どの期間幅(14〜4000日)でも目盛は2〜7本に収まり、すべて範囲内', () => {
+    const start = Date.UTC(2023, 2, 9);
+    for (let days = 14; days <= 4000; days += 1) {
+      const end = start + days * DAY_MS;
+      const ticks = buildTimeTicks(start, end);
+      expect(ticks.length, `${days}日`).toBeGreaterThanOrEqual(2);
+      expect(ticks.length, `${days}日`).toBeLessThanOrEqual(7);
+      for (const t of ticks) {
+        expect(t).toBeGreaterThanOrEqual(start);
+        expect(t).toBeLessThanOrEqual(end);
+      }
+    }
+  });
+
+  it('約1年: 2か月ごとの月初(奇数月)', () => {
     const start = Date.UTC(2024, 0, 1);
     const end = Date.UTC(2025, 0, 1); // 366日間(うるう年)
     expect(buildTimeTicks(start, end)).toEqual([
       Date.UTC(2024, 0, 1),
-      Date.UTC(2024, 3, 1),
+      Date.UTC(2024, 2, 1),
+      Date.UTC(2024, 4, 1),
       Date.UTC(2024, 6, 1),
-      Date.UTC(2024, 9, 1),
+      Date.UTC(2024, 8, 1),
+      Date.UTC(2024, 10, 1),
       Date.UTC(2025, 0, 1),
     ]);
   });
 
-  it('800〜1500日: 半年ごと(1・7月)', () => {
+  it('約2年: 3か月ごとだと9本になるので半年ごと(1・7月)に落とす', () => {
+    const start = Date.UTC(2024, 0, 8);
+    const end = Date.UTC(2026, 1, 1); // 755日間
+    expect(buildTimeTicks(start, end)).toEqual([
+      Date.UTC(2024, 6, 1),
+      Date.UTC(2025, 0, 1),
+      Date.UTC(2025, 6, 1),
+      Date.UTC(2026, 0, 1),
+    ]);
+  });
+
+  it('数十年: 5年ごとの年初', () => {
+    const ticks = buildTimeTicks(Date.UTC(2000, 0, 1), Date.UTC(2026, 8, 17));
+    expect(ticks).toEqual([2000, 2005, 2010, 2015, 2020, 2025].map((y) => Date.UTC(y, 0, 1)));
+  });
+
+  it('約3年: 半年ごと(1・7月)', () => {
     const start = Date.UTC(2020, 0, 1);
     const end = Date.UTC(2023, 0, 1); // 1096日間
     expect(buildTimeTicks(start, end)).toEqual([
@@ -73,7 +118,7 @@ describe('buildTimeTicks', () => {
     ]);
   });
 
-  it('1500日超: 年初', () => {
+  it('約5年: 年初', () => {
     const start = Date.UTC(2020, 0, 1);
     const end = Date.UTC(2025, 0, 1); // 1827日間
     expect(buildTimeTicks(start, end)).toEqual([
@@ -83,21 +128,6 @@ describe('buildTimeTicks', () => {
       Date.UTC(2023, 0, 1),
       Date.UTC(2024, 0, 1),
       Date.UTC(2025, 0, 1),
-    ]);
-  });
-
-  it('目盛が3本未満になるときは1段階細かい間隔にフォールバックする(月初→週単位)', () => {
-    const start = Date.UTC(2024, 0, 1); // 月曜
-    const end = start + 50 * DAY_MS; // 2024-02-20(50日間、月初だけだと2本しか無い)
-    expect(buildTimeTicks(start, end)).toEqual([
-      Date.UTC(2024, 0, 1),
-      Date.UTC(2024, 0, 8),
-      Date.UTC(2024, 0, 15),
-      Date.UTC(2024, 0, 22),
-      Date.UTC(2024, 0, 29),
-      Date.UTC(2024, 1, 5),
-      Date.UTC(2024, 1, 12),
-      Date.UTC(2024, 1, 19),
     ]);
   });
 

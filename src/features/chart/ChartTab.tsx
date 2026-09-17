@@ -56,6 +56,8 @@ export function ChartTab() {
   );
 
   const latest = useMemo(() => lastNonNullPoint(kmPerLPoints), [kmPerLPoints]);
+  // 期間内に行はあっても、部分給油だけだと燃費の値が1つも無い(空の軸だけのグラフを描かない)
+  const hasKmPerLData = latest !== undefined;
 
   const costValues = useMemo(
     () => costPoints.map((p) => p.value).filter((v): v is number => v !== null),
@@ -114,6 +116,10 @@ export function ChartTab() {
             </div>
             {isPeriodEmpty ? (
               <p className="hint chart-empty">この期間の記録はありません</p>
+            ) : !hasKmPerLData ? (
+              <p className="hint chart-empty">
+                この期間は部分給油だけのため、燃費はまだ算出されていません
+              </p>
             ) : (
               domain && (
                 <MetricLineChart

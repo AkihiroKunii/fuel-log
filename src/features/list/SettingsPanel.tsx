@@ -13,7 +13,7 @@ import {
 import { CSV_MIME, csvFileName, parseCsv, toCsv } from '../../core/csv';
 import { todayJst } from '../../core/dates';
 import { db } from '../../core/db';
-import { saveTextFile } from '../../core/download';
+import { saveTextFile, type SaveResult } from '../../core/download';
 import { deriveFillups } from '../../core/fuel';
 import { appendFillups, deleteAllFillups, restoreBackup } from '../../core/repo';
 import type { StoredFillup } from '../../core/types';
@@ -31,14 +31,27 @@ export function SettingsPanel({ fillups }: { fillups: readonly StoredFillup[] })
   const [csvErrors, setCsvErrors] = useState<string[] | null>(null);
   const [backupError, setBackupError] = useState<string | null>(null);
 
+  // 保存できたかを確かめられない経路('unconfirmed')では「書き出しました」と言い切らない
+  // (バックアップが取れていないのに取れたと誤認させないため)。
+  function notifyExported(result: SaveResult, n: number) {
+    if (result === 'cancelled') return;
+    if (result === 'unconfirmed') {
+      toast(
+        '共有シートを使えませんでした。ファイルが保存されたか「ファイル」アプリで確認してください',
+        'error',
+      );
+      return;
+    }
+    toast(`${n} 件を書き出しました`);
+  }
+
   // クリックハンドラ内で await を挟まずに saveTextFile を呼ぶ(ユーザー操作の有効期限切れを避ける。download.ts 参照)。
   // 書き出す文字列は useLiveQuery で手元にあるデータから同期的に作る。
   async function handleExportCsv() {
     if (count === 0) return;
     const n = count;
     const result = await saveTextFile(csvFileName(today), toCsv(derived), CSV_MIME);
-    if (result === 'cancelled') return;
-    toast(`${n} 件を書き出しました`);
+    notifyExported(result, n);
   }
 
   async function handleExportBackup() {
@@ -49,8 +62,7 @@ export function SettingsPanel({ fillups }: { fillups: readonly StoredFillup[] })
       backupToJson(buildBackup(fillups, settings)),
       BACKUP_MIME,
     );
-    if (result === 'cancelled') return;
-    toast(`${n} 件を書き出しました`);
+    notifyExported(result, n);
   }
 
   async function handleCsvFileChange(e: ChangeEvent<HTMLInputElement>) {
