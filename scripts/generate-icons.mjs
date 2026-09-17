@@ -1,29 +1,27 @@
 // PWAアイコン生成(初回のみ実行し、生成物は public/icons/ にコミットする)
 // 使い方: npm run icons
-// モチーフ: しずく(燃料)+ 右上がりの折れ線。maskableでも主要素が切れないよう中央60%に収めている。
+// モチーフ: しずく(燃料)の中に右上がりの折れ線(燃費の推移)。
+// 背景は全面塗り(角丸・透過なし)。iOS も Android(maskable)も OS 側でマスクするため、
+// 透過の角があると黒く出てしまう。主要素は maskable の安全領域(中央の直径80%の円)に収めている。
 import { mkdirSync } from 'node:fs';
 import sharp from 'sharp';
 
 const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <radialGradient id="bg" cx="0.5" cy="0.32" r="0.8">
-      <stop offset="0" stop-color="#172038"/>
+    <radialGradient id="bg" cx="0.5" cy="0.3" r="0.85">
+      <stop offset="0" stop-color="#1b2a4a"/>
       <stop offset="1" stop-color="#0b1120"/>
     </radialGradient>
-    <linearGradient id="drop" x1="0.1" y1="1" x2="0.9" y2="0">
-      <stop offset="0" stop-color="#3987e5"/>
-      <stop offset="1" stop-color="#5aa2f2"/>
-    </linearGradient>
-    <linearGradient id="line" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#eaf4ff"/>
-      <stop offset="1" stop-color="#ffffff"/>
+    <linearGradient id="drop" x1="0.15" y1="1" x2="0.85" y2="0">
+      <stop offset="0" stop-color="#2f78d6"/>
+      <stop offset="1" stop-color="#6db0f7"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <path d="M210 171 C168 227 130 275 130 315 A80 80 0 0 0 290 315 C290 275 252 227 210 171 Z" fill="url(#drop)"/>
-  <polyline points="300,202 344,194 396,132" fill="none" stroke="url(#line)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="396" cy="132" r="17" fill="#ffffff"/>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <path d="M256 92 C200 170 144 236 144 308 A112 112 0 0 0 368 308 C368 236 312 170 256 92 Z" fill="url(#drop)"/>
+  <polyline points="188,348 236,306 274,330 328,266" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="328" cy="266" r="17" fill="#ffffff"/>
 </svg>`;
 
 mkdirSync('public/icons', { recursive: true });

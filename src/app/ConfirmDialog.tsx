@@ -16,35 +16,41 @@ export function useConfirm(): ConfirmFn {
   return useContext(ConfirmContext);
 }
 
-interface PendingConfirm extends ConfirmOptions {
-  resolve: (value: boolean) => void;
-}
-
 export function ConfirmProvider({ children }: { children: ReactNode }) {
-  const [pending, setPending] = useState<PendingConfirm | null>(null);
+  const [pending, setPending] = useState<ConfirmOptions | null>(null);
+  // resolve は state の更新関数の中で呼ばない(StrictMode の二重実行を避ける)ため ref で持つ
+  const resolverRef = useRef<((value: boolean) => void) | null>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
   const confirm = useCallback<ConfirmFn>(
-    (opts) => new Promise<boolean>((resolve) => setPending({ ...opts, resolve })),
+    (opts) =>
+      new Promise<boolean>((resolve) => {
+        resolverRef.current?.(false); // 多重に開かれたら前の確認はキャンセル扱い
+        resolverRef.current = resolve;
+        setPending(opts);
+      }),
     [],
   );
 
   const close = useCallback((result: boolean) => {
-    setPending((current) => {
-      current?.resolve(result);
-      return null;
-    });
+    resolverRef.current?.(result);
+    resolverRef.current = null;
+    setPending(null);
   }, []);
 
   useEffect(() => {
     if (!pending) return;
     confirmBtnRef.current?.focus();
 
+    // シートの上に重ねて開くことがある。Esc は最前面のこのダイアログだけを閉じたいので、
+    // capture で先に受けて伝播を止める(シート側の Esc ハンドラに届かせない)
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close(false);
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      close(false);
     };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
   }, [pending, close]);
 
   return (
