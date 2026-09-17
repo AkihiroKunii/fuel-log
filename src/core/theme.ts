@@ -9,6 +9,7 @@ export const chartColors = {
   bad: '#f4845f', // 前回比 悪化(▼)
   grid: '#1f2a44', // グリッド線(--border と同色)
   axisText: '#8fa0b8', // 軸ラベル・ツールチップの文字(--muted と同色。系列色で文字は塗らない)
+  labelText: '#b6c2d6', // グラフ内の直接ラベル(--text-2 と同色)
   surface: '#131c31', // カード面(--card と同色)。点マーカーのリング色に使う
 } as const;
 

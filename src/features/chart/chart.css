@@ -1,0 +1,166 @@
+/* S2 グラフタブ。共通トークンは src/app/styles.css の :root だけを参照する(色の直書き禁止)。 */
+
+/* --- カードヘッダ(燃費・コスト共通) --- */
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.chart-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+}
+
+.chart-card-unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* 最新値(燃費カード右上) */
+
+.chart-card-latest {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.chart-card-latest-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.chart-card-latest-label {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.chart-card-latest-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chart-card-latest-date {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* コストカードのヘッダ内トグル(全体の範囲切替と見た目を揃えつつ、カード内では余白を詰める) */
+
+.chart-card-toggle .segmented {
+  margin-bottom: 0;
+  min-width: 152px;
+}
+
+.chart-card-toggle .segmented-btn {
+  padding: 6px 4px;
+  font-size: 12px;
+}
+
+/* --- グラフ本体・空状態 --- */
+
+.metric-chart {
+  margin-top: 4px;
+}
+
+.chart-empty {
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* --- 統計行 --- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+
+.stat-tile-label {
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.stat-tile-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-total {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- ツールチップ(Recharts の Tooltip content に渡す自前マークアップ) --- */
+
+.chart-tooltip {
+  min-width: 128px;
+  padding: 8px 10px;
+  background: var(--card-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 20px rgb(2 6 18 / 0.45);
+}
+
+.chart-tooltip-date {
+  margin-bottom: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tooltip-value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.chart-tooltip-swatch {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.chart-tooltip-value-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chart-tooltip-value-unit {
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.chart-tooltip-detail {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.chart-tooltip-merged {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
