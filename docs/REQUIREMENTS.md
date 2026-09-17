@@ -2,8 +2,9 @@
 type: requirements
 app: fuel-log
 date: 2026-09-17
-status: 確定（実装可）
-implementer: ChatGPT 6 Astra / 5.6 Sol
+status: 実装済み（2026-09-17・ローカル。GitHub への push と実機 iPhone での確認が未了）
+implementer: Claude Code（Claude Fable 5.1 が監督・QC・UI調整、Opus / Sonnet / Haiku のサブエージェントが実装。当初予定は ChatGPT 6 Astra / 5.6 Sol）
+repo_local: ~/vibe-coding/fuel-log
 related:
   - "[[10_人生設計/50_個人開発/2026-09-17_生活アプリ3案_全体方針と引き継ぎ]]"
   - "[[10_人生設計/50_個人開発/2026-09-17_生活アプリ3案の要件メモ_要約]]"
