@@ -66,12 +66,12 @@ describe('validateFillupForm: 日付', () => {
     expect(r.errors.date).toBe(MESSAGES.dateRequired);
   });
 
-  it('実在しない日付・形式違いも同じ文言', () => {
+  it('実在しない日付・形式違いは「正しくありません」(CSV 取込で何が悪いか分かるように必須エラーと分ける)', () => {
     for (const date of ['2026-02-30', '2026-13-01', '2026-9-1', '2026/09/17']) {
       const r = validateFillupForm(values({ date }), TODAY);
       expect(r.ok).toBe(false);
       if (r.ok) return;
-      expect(r.errors.date).toBe(MESSAGES.dateRequired);
+      expect(r.errors.date).toBe(MESSAGES.dateInvalid);
     }
   });
 

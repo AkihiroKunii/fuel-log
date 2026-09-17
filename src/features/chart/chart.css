@@ -103,11 +103,18 @@
 }
 
 .stats-total {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 14px;
   margin: 12px 0 0;
   padding-top: 10px;
   border-top: 1px solid var(--border);
-  text-align: center;
   font-variant-numeric: tabular-nums;
+}
+
+.stats-total span {
+  white-space: nowrap;
 }
 
 /* --- ツールチップ(Recharts の Tooltip content に渡す自前マークアップ) --- */

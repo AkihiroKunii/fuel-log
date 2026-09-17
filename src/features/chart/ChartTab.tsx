@@ -4,7 +4,7 @@
 // 派生計算を先に全データへ行うのは、期間外の部分給油を期間内の満タン行へ合算するため(CLAUDE.md §4.4 規則5)。
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useAppNav } from '../../app/App';
+import { useAppNav } from '../../app/nav';
 import { Segmented } from '../../app/Segmented';
 import { useToday } from '../../app/useToday';
 import { db } from '../../core/db';

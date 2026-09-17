@@ -197,7 +197,7 @@ describe('parseCsv', () => {
     expect(parsed.ok).toBe(false);
     if (parsed.ok) return;
     expect(parsed.errors).toEqual([
-      '2行目: 日付を入力してください',
+      '2行目: 日付が正しくありません（YYYY-MM-DD の実在する日付）',
       '2行目: 走行距離: 1〜2,000 km の範囲で入力してください',
       '2行目: 給油量: 0.5〜120 L の範囲で入力してください',
       '2行目: 金額: 0〜50,000 円の整数で入力してください',

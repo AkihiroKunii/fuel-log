@@ -78,34 +78,34 @@ interface AvgLabelProps {
   viewBox?: { x?: number; y?: number; width?: number };
 }
 
+// グラフ上端の余白(LineChart の margin.top と同じ値)
+const PLOT_TOP = 10;
+
 /**
- * 平均線の直接ラベル。線の右端・すぐ上に置く。データの線や点と重なっても読めるよう、
- * カード面色の縁取り(paint-order: stroke)を付ける。
+ * 平均線の直接ラベル(破線のキー + 「平均 14.2」)。プロット領域の右上に置く。
+ * Y軸の範囲は最大値より 1 以上広く取っている(yDomain)ので、上端の帯にはデータの線や点が来ない。
+ * 線のすぐ脇に置くとデータと重なって読めなくなるため、重ならないことが保証される場所に固定する。
  */
 function AvgLabel({ viewBox, text }: AvgLabelProps & { text: string }) {
-  if (
-    !viewBox ||
-    typeof viewBox.x !== 'number' ||
-    typeof viewBox.y !== 'number' ||
-    typeof viewBox.width !== 'number'
-  ) {
+  if (!viewBox || typeof viewBox.x !== 'number' || typeof viewBox.width !== 'number') {
     return null;
   }
+  const right = viewBox.x + viewBox.width - 2;
+  const baseline = PLOT_TOP + 12;
   return (
-    <text
-      x={viewBox.x + viewBox.width - 2}
-      y={viewBox.y - 6}
-      textAnchor="end"
-      fontSize={11}
-      fontWeight={600}
-      fill={chartColors.labelText}
-      stroke={chartColors.surface}
-      strokeWidth={4}
-      strokeLinejoin="round"
-      paintOrder="stroke"
-    >
-      {text}
-    </text>
+    <g>
+      <line
+        x1={right - 18}
+        x2={right}
+        y1={baseline - 4}
+        y2={baseline - 4}
+        stroke={chartColors.avg}
+        strokeDasharray="4 3"
+      />
+      <text x={right - 24} y={baseline} textAnchor="end" fontSize={11} fill={chartColors.labelText}>
+        {text}
+      </text>
+    </g>
   );
 }
 
@@ -157,7 +157,7 @@ export function MetricLineChart({
       <ResponsiveContainer width="100%" height={248}>
         <LineChart
           data={points}
-          margin={{ top: 10, right: 8, bottom: 0, left: 0 }}
+          margin={{ top: PLOT_TOP, right: 8, bottom: 0, left: 0 }}
           accessibilityLayer={false}
         >
           <CartesianGrid vertical={false} stroke={chartColors.grid} />

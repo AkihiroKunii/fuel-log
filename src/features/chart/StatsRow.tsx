@@ -19,15 +19,11 @@ export function StatsRow({
         <StatTile label="最低" value={formatKmPerL(stats.minKmPerL)} />
         <StatTile label="件数" value={isPeriodEmpty ? DASH : String(stats.count)} />
       </div>
+      {/* 項目の途中(数値と単位の間)で折り返さないよう、項目ごとに nowrap の塊にする */}
       <p className="stats-total hint">
-        {isPeriodEmpty ? (
-          `走行 ${DASH} km ・ 給油 ${DASH} L ・ ${DASH}円`
-        ) : (
-          <>
-            走行 {formatKmGrouped(stats.totalKm)} km ・ 給油 {formatLitersGrouped(stats.totalLiters)} L
-            ・ {formatYen(stats.totalYen)}円
-          </>
-        )}
+        <span>走行 {isPeriodEmpty ? DASH : formatKmGrouped(stats.totalKm)} km</span>
+        <span>給油 {isPeriodEmpty ? DASH : formatLitersGrouped(stats.totalLiters)} L</span>
+        <span>{isPeriodEmpty ? DASH : formatYen(stats.totalYen)}円</span>
       </p>
     </section>
   );

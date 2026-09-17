@@ -66,13 +66,14 @@ p {
 
 .app-main {
   flex: 1;
-  padding: 16px 16px calc(84px + env(safe-area-inset-bottom));
+  /* ホーム画面PWA(black-translucent)ではステータスバーの下まで描画されるので上も避ける */
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom));
 }
 
 .app-main h1 {
   font-size: 20px;
   letter-spacing: 0.02em;
-  margin: 10px 6px 16px;
+  margin: 6px 6px 12px;
 }
 
 .app-main h2 {
@@ -190,6 +191,7 @@ p {
 
 .field-input-wrap input::placeholder {
   color: var(--muted);
+  opacity: 0.4;
 }
 
 .field-input-wrap input:focus {
@@ -210,6 +212,28 @@ p {
   -webkit-appearance: none;
   appearance: none;
   min-width: 0;
+}
+
+/* ラベルと入力を1行に並べるコンパクトな欄(既定値のまま使うことが多い日付用) */
+.field-inline {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 4px;
+  margin-bottom: 12px;
+}
+
+.field-inline .field-input-wrap input {
+  height: 44px;
+}
+
+.field-inline .field-input-wrap input[type='date'] {
+  text-align: right;
+}
+
+.field-inline .field-error {
+  grid-column: 1 / -1;
 }
 
 .field-unit {

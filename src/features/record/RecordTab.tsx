@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
-import { useAppNav } from '../../app/App';
+import { useAppNav } from '../../app/nav';
 import { useToast } from '../../app/Toast';
 import { useToday } from '../../app/useToday';
 import { db } from '../../core/db';
@@ -39,6 +39,7 @@ export function RecordTab() {
           today={today}
           submitLabel="保存"
           onSubmit={handleSubmit}
+          onDirty={() => setSavedId(null)}
         />
       </div>
 

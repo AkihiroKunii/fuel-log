@@ -16,6 +16,7 @@ export type FillupFormErrors = Partial<Record<FillupField, string>>;
 /** 検証メッセージ(固定文言。CLAUDE.md §4.5)。 */
 export const MESSAGES = {
   dateRequired: '日付を入力してください',
+  dateInvalid: '日付が正しくありません（YYYY-MM-DD の実在する日付）',
   tripKmRequired: '走行距離を入力してください',
   litersRequired: '給油量を入力してください',
   notNumber: '数値で入力してください',
@@ -124,7 +125,7 @@ const YEN_RULE: NumberRule = {
 function validateDate(raw: string, today: DateStr): { ok: true; value: DateStr } | { ok: false; error: string } {
   const s = normalizeText(raw);
   if (s === '') return { ok: false, error: MESSAGES.dateRequired };
-  if (!isValidDateStr(s)) return { ok: false, error: MESSAGES.dateRequired };
+  if (!isValidDateStr(s)) return { ok: false, error: MESSAGES.dateInvalid };
   if (s > today) return { ok: false, error: MESSAGES.futureDate };
   return { ok: true, value: s };
 }

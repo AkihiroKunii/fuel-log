@@ -1,25 +1,41 @@
 /* S1 記録タブ・編集フォーム共通(FillupForm) */
 
-.fillup-details {
-  margin: 0 0 16px;
+/* 走行距離と給油量は2列に並べる(フォームを短くして、キーボードを開いたままでも保存ボタンが見えるように) */
+.fillup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.fillup-details > summary {
+.fillup-grid .field,
+.fillup-form > .field {
+  margin-bottom: 12px;
+}
+
+/* 「詳細」の開閉(左)と算出燃費プレビュー(右)を1行に置く */
+.fillup-meta-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   min-height: 44px;
-  padding: 8px 2px;
+  margin: -2px 0 8px;
+}
+
+.fillup-details-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px 0 2px;
+  background: none;
+  border: none;
   color: var(--text-2);
+  font: inherit;
   font-size: 13px;
   cursor: pointer;
-  list-style: none;
 }
 
-.fillup-details > summary::-webkit-details-marker {
-  display: none;
-}
-
-.fillup-details > summary::before {
+.fillup-details-toggle::before {
   content: '▸';
   display: inline-block;
   margin-right: 6px;
@@ -27,8 +43,21 @@
   transition: transform 0.15s ease;
 }
 
-.fillup-details[open] > summary::before {
+.fillup-details-toggle[aria-expanded='true']::before {
   transform: rotate(90deg);
+}
+
+.fillup-details-toggle:focus-visible {
+  outline: none;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px rgb(90 162 242 / 0.45);
+}
+
+.fillup-details-body {
+  margin: -4px 0 12px;
+  padding: 4px 12px 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .fillup-checkbox {
@@ -36,7 +65,7 @@
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  padding: 4px 2px;
+  padding: 4px 0;
   font-size: 15px;
   color: var(--text);
 }
@@ -47,61 +76,102 @@
   accent-color: var(--accent);
 }
 
-/* 算出燃費プレビュー。高さを確保してレイアウトのガタつきを防ぐ */
+/* 算出燃費プレビュー。値が出ても消えても行の高さは変わらない */
 .fillup-preview {
   display: flex;
-  align-items: center;
-  min-height: 30px;
-  margin: 2px 0 16px;
-}
-
-.fillup-preview-text {
-  margin: 0;
-  font-size: 17px;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+  min-width: 0;
   color: var(--text-2);
 }
 
-.fillup-preview-text strong {
-  font-size: 19px;
-  color: var(--accent-hi);
+.fillup-preview strong {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
 }
 
-.fillup-preview-text.muted {
-  font-size: 13px;
+.fillup-preview-arrow {
+  color: var(--accent-hi);
+  font-size: 15px;
+}
+
+.fillup-preview-unit {
+  font-size: 12px;
   color: var(--muted);
+}
+
+.fillup-preview-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* 編集シートの「削除」など。主ボタンから離して押し間違いを防ぐ */
+.fillup-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 /* 保存しました通知(SavedNotice) */
 
+.saved-notice {
+  /* scrollIntoView が下部固定のタブバーの裏に止まらないように */
+  scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom));
+  border-color: rgb(57 135 229 / 0.45);
+}
+
 .saved-notice-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-2);
-  margin: 0 0 8px;
+  margin: 0 0 4px;
+}
+
+.saved-notice-title::before {
+  content: '✓';
+  color: var(--good);
+  font-weight: 700;
 }
 
 .saved-notice-meta {
   font-size: 13px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
 
 .saved-notice-main {
-  margin: 0 0 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
 }
 
 /* 大きな単独の数値。縦揃えの列ではないため tabular-nums は使わない(CLAUDE.md §6) */
 .saved-notice-value {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--text);
+}
+
+.saved-notice-value small {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
 }
 
 .saved-notice-partial {
   font-size: 14px;
   color: var(--text-2);
-  margin: 0 0 8px;
+  margin: 0;
 }
 
 .saved-notice-diff {
@@ -113,7 +183,7 @@
 .saved-notice-merged {
   font-size: 12px;
   color: var(--muted);
-  margin: 8px 0 0;
+  margin: 6px 0 0;
 }
 
 /* 前回比の色付き差分。色だけに頼らず ▲▼± の文字を必ず添える運用(呼び出し側) */

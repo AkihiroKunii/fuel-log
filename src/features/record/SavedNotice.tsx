@@ -28,7 +28,13 @@ export function SavedNotice({
   const diff = prev !== null && row.kmPerL !== null ? diffKmPerL(row.kmPerL, prev) : null;
   const diffSymbol = diff === null ? '' : diff.dir === 'up' ? '▲' : diff.dir === 'down' ? '▼' : '±';
   const diffClass =
-    diff === null ? '' : diff.dir === 'up' ? 'diff-good' : diff.dir === 'down' ? 'diff-bad' : 'diff-muted';
+    diff === null
+      ? ''
+      : diff.dir === 'up'
+        ? 'diff-good'
+        : diff.dir === 'down'
+          ? 'diff-bad'
+          : 'diff-muted';
 
   return (
     <div className="card saved-notice" role="status" ref={rootRef}>
@@ -40,28 +46,30 @@ export function SavedNotice({
       {row.partial ? (
         <p className="saved-notice-partial">部分給油のため、燃費は次の満タン給油で算出します</p>
       ) : (
-        <p className="saved-notice-main">
-          <span className="saved-notice-value">{formatKmPerL(row.kmPerL)} km/L</span>
-        </p>
+        <div className="saved-notice-main">
+          <span className="saved-notice-value">
+            {formatKmPerL(row.kmPerL)}
+            <small>km/L</small>
+          </span>
+          <span className="saved-notice-diff">
+            {prev === null ? (
+              '最初の燃費記録です'
+            ) : (
+              <>
+                前回 {formatKmPerL(prev)}{' '}
+                <span className={diffClass}>
+                  {diffSymbol}
+                  {diff !== null && formatKmPerL(Math.abs(diff.diff))}
+                </span>
+              </>
+            )}
+          </span>
+        </div>
       )}
 
-      {!row.partial && (
-        <p className="saved-notice-diff">
-          {prev === null ? (
-            '最初の燃費記録です'
-          ) : (
-            <>
-              前回 {formatKmPerL(prev)}{' '}
-              <span className={diffClass}>
-                {diffSymbol}
-                {diff !== null && formatKmPerL(Math.abs(diff.diff))}
-              </span>
-            </>
-          )}
-        </p>
+      {row.mergedPartials > 0 && (
+        <p className="saved-notice-merged">部分給油 {row.mergedPartials} 回分を合算</p>
       )}
-
-      {row.mergedPartials > 0 && <p className="saved-notice-merged">部分給油 {row.mergedPartials} 回分を合算</p>}
     </div>
   );
 }

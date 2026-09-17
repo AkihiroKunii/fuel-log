@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useAppNav, type TabId } from './App';
+import { useAppNav, type TabId } from './nav';
 
 const TABS: Array<{ id: TabId; label: string; icon: ReactNode }> = [
   { id: 'record', label: '記録', icon: <RecordIcon /> },

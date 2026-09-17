@@ -3,7 +3,13 @@ import { useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useConfirm } from '../../app/ConfirmDialog';
 import { useToast } from '../../app/Toast';
 import { useToday } from '../../app/useToday';
-import { BACKUP_MIME, backupFileName, backupToJson, buildBackup, parseBackup } from '../../core/backup';
+import {
+  BACKUP_MIME,
+  backupFileName,
+  backupToJson,
+  buildBackup,
+  parseBackup,
+} from '../../core/backup';
 import { CSV_MIME, csvFileName, parseCsv, toCsv } from '../../core/csv';
 import { todayJst } from '../../core/dates';
 import { db } from '../../core/db';
@@ -127,6 +133,7 @@ export function SettingsPanel({ fillups }: { fillups: readonly StoredFillup[] })
       <p className="settings-count">保存件数: {count} 件</p>
 
       <div className="settings-actions">
+        <h3 className="settings-group-title">書き出し</h3>
         <button
           type="button"
           className="btn btn-secondary btn-block"
@@ -145,8 +152,11 @@ export function SettingsPanel({ fillups }: { fillups: readonly StoredFillup[] })
         >
           バックアップ書き出し（JSON）
         </button>
-        <p className="hint">全データをバックアップファイルに書き出します。機種変更前におすすめです。</p>
+        <p className="hint">
+          全データをバックアップファイルに書き出します。機種変更前におすすめです。
+        </p>
 
+        <h3 className="settings-group-title">取り込み</h3>
         <button
           type="button"
           className="btn btn-secondary btn-block"
@@ -154,7 +164,9 @@ export function SettingsPanel({ fillups }: { fillups: readonly StoredFillup[] })
         >
           CSV取込（追記）
         </button>
-        <p className="hint">CSVファイルを読み込み、現在の記録に追記します。既存の記録は消えません。</p>
+        <p className="hint">
+          CSVファイルを読み込み、現在の記録に追記します。既存の記録は消えません。
+        </p>
         <input
           ref={csvInputRef}
           type="file"
@@ -194,6 +206,7 @@ export function SettingsPanel({ fillups }: { fillups: readonly StoredFillup[] })
           </div>
         )}
 
+        <h3 className="settings-group-title">削除</h3>
         <button
           type="button"
           className="btn btn-danger btn-block"

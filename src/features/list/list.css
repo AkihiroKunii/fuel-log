@@ -4,7 +4,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin: 10px 6px 16px;
+  margin: 6px 6px 12px;
 }
 
 .list-header h1 {
@@ -63,6 +63,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+.fillup-row-kmpl small {
+  margin-left: 3px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.list-more {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
 .fillup-row-sub {
   margin: 4px 0 0;
   font-size: 12px;
@@ -84,7 +96,21 @@
 }
 
 .settings-actions .btn {
-  margin-top: 12px;
+  margin-top: 10px;
+}
+
+.settings-group-title {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.settings-group-title:first-child {
+  margin-top: 0;
 }
 
 .settings-actions .hint {

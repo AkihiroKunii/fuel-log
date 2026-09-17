@@ -1,28 +1,17 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { ToastProvider } from './Toast';
 import { ConfirmProvider } from './ConfirmDialog';
 import { TabBar } from './TabBar';
+import { AppNavContext, type AppNavValue, type TabId } from './nav';
 import { RecordTab } from '../features/record/RecordTab';
-import { ChartTab } from '../features/chart/ChartTab';
 import { ListTab } from '../features/list/ListTab';
 import { EditSheet } from '../features/list/EditSheet';
 
-export type TabId = 'record' | 'chart' | 'list';
-
-interface AppNavValue {
-  tab: TabId;
-  setTab: (tab: TabId) => void;
-  openEditor: (id: number) => void;
-  closeEditor: () => void;
-}
-
-const AppNavContext = createContext<AppNavValue | null>(null);
-
-export function useAppNav(): AppNavValue {
-  const ctx = useContext(AppNavContext);
-  if (!ctx) throw new Error('useAppNav must be used within the App');
-  return ctx;
-}
+// グラフ(Recharts)は重いので別チャンクにし、起動直後の「記録」を軽くする。
+// チャンクは Service Worker が事前キャッシュするのでオフラインでも開ける。
+const ChartTab = lazy(() =>
+  import('../features/chart/ChartTab').then((m) => ({ default: m.ChartTab })),
+);
 
 function AppShell() {
   const [tab, setTab] = useState<TabId>('record');
@@ -36,12 +25,21 @@ function AppShell() {
     [tab, openEditor, closeEditor],
   );
 
+  // タブを切り替えたら先頭から見せる(前のタブのスクロール位置を引き継がない)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [tab]);
+
   return (
     <AppNavContext.Provider value={nav}>
       <div className="app">
         <main className="app-main">
           {tab === 'record' && <RecordTab />}
-          {tab === 'chart' && <ChartTab />}
+          {tab === 'chart' && (
+            <Suspense fallback={null}>
+              <ChartTab />
+            </Suspense>
+          )}
           {tab === 'list' && <ListTab />}
         </main>
         <TabBar />
