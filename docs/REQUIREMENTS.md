@@ -2,7 +2,7 @@
 type: requirements
 app: fuel-log
 date: 2026-09-17
-status: 公開済み（2026-09-18・実機iPhone確認待ち）
+status: 初期版完成・利用開始可能（2026-09-18）
 implementer: Claude Code（Claude Fable 5.1 が監督・QC・UI調整、Opus / Sonnet / Haiku のサブエージェントが実装。当初予定は ChatGPT 6 Astra / 5.6 Sol）
 repo_local: ~/vibe-coding/fuel-log
 related:
@@ -252,4 +252,4 @@ iPhone 幅（375×812）で全画面を実際に操作して決めたもの。
 - [実装判断] 画面下部にオフライン準備中・準備完了・失敗を表示。準備完了後に機内モードで確認する。
 - [実装判断] §4の「満タン時にしかリセットしない」は§9・README・画面と矛盾するため、既存実装どおり「部分給油を含め給油ごとにリセット」へ統一した。計算式・保存形式は変更しない。
 - 検証の現在地・実機の手順は `docs/ACCEPTANCE.md` に分離して更新する。初回実装をやり直さない。commit・pushは本人の明示指示後に実行する。
-- [事実] 本人の明示指示後、公開リポジトリ `AkihiroKunii/fuel-log` を作成して `main` をpushし、GitHub Actionsのテスト・ビルド・Pages配信に成功した。公開URLで起動とService Workerの準備完了を確認した。実機iPhoneの確認は未実施。
+- [事実] 本人の明示指示後、公開リポジトリ `AkihiroKunii/fuel-log` を作成して `main` をpushし、GitHub Actionsのテスト・ビルド・Pages配信に成功した。公開URLで起動とService Workerの準備完了を確認した。2026-09-18、本人報告により実機iPhoneでホーム画面追加、再起動後の保持、機内モード、共有シート保存、バックアップ復元まで確認済み。初期版を完成・利用開始可能とする。
