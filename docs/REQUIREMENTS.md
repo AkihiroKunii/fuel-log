@@ -2,7 +2,7 @@
 type: requirements
 app: fuel-log
 date: 2026-09-17
-status: 実装済み（2026-09-17・ローカル。GitHub への push と実機 iPhone での確認が未了）
+status: 公開準備中（2026-09-18・GPT引き継ぎ。実機iPhone確認待ち）
 implementer: Claude Code（Claude Fable 5.1 が監督・QC・UI調整、Opus / Sonnet / Haiku のサブエージェントが実装。当初予定は ChatGPT 6 Astra / 5.6 Sol）
 repo_local: ~/vibe-coding/fuel-log
 related:
@@ -58,7 +58,7 @@ React 19 + TypeScript strict + Vite / Dexie.js + dexie-react-hooks / Recharts / 
 `fillups` を `date` 昇順（同日は `id` 昇順）に並べ、各行に派生値を付ける:
 
 - 通常（`partial=false` で、直前の行も `partial=false` または先頭）: `kmPerL = tripKm / liters`
-- **部分給油の連鎖**: `partial=true` の行は `kmPerL = null`。次に来る `partial=false` の行では、直前の連続する `partial=true` 行の `tripKm` と `liters` を自分に足し合わせてから `kmPerL` を計算する（走行距離モニターは満タン時にしかリセットしない運用のため、部分給油の行の `tripKm` は「前回満タンからの積算ではなく、その区間の距離」として入力してもらう。§9 参照）
+- **部分給油の連鎖**: `partial=true` の行は `kmPerL = null`。次に来る `partial=false` の行では、直前の連続する `partial=true` 行の `tripKm` と `liters` を自分に足し合わせてから `kmPerL` を計算する（部分給油も含め給油ごとにトリップメーターをリセットし、各行の `tripKm` には前回給油からの区間距離を入力する。§9と同じ運用）
 - `yenPerL = yen / liters`（`yen` が null なら null）、`yenPerKm = yen / tripKm`（同）
 - 期間統計: 対象期間の `kmPerL` が非nullの行について 平均（単純平均）・最高・最低・件数、および期間の総走行距離・総給油量・総金額（null除く）
 
@@ -244,3 +244,11 @@ iPhone 幅（375×812）で全画面を実際に操作して決めたもの。
 - 受け入れ条件1〜4は実画面で確認済み: 登録→km/L と前回差の表示→グラフ反映／部分給油→満タンで合算（200 km・12 L ＋ 300 km・25 L → 13.5 km/L、「部分給油 1 回分を合算」）／範囲切替と再読込後の保持／CSV 書き出し→全削除→取込で54件が完全一致、JSON バックアップは id まで一致、不正な CSV は行番号付きエラーで何も取り込まれない
 - 1,000件: 取込は1回の確認で完了、一覧は30件ずつ、グラフの範囲切替（全期間・点 約1,900個）は本番ビルドでスクリプト処理 約30〜40 ms
 - 未確認（実機が必要）: 受け入れ条件5（iPhone の Chrome でホーム画面に追加→機内モードで動作）と、iOS の共有シート経由のファイル保存。開発機の内蔵ブラウザは Service Worker を登録できない環境だったため、オフライン動作は `dist/sw.js` の事前キャッシュ一覧（index.html・全JS/CSSチャンク・アイコン・manifest）と `navigateFallback` の確認まで
+
+### GPT引き継ぎ・利用開始準備（2026-09-18）
+
+- [決定] 本人が開発監査の提案を採用。既存の構成を維持してGPTへ引き継ぎ、燃費を最初に利用開始まで仕上げる。
+- [実装判断] 入力保護を優先し、PWA更新を自動再読込から通知方式へ変更（`registerType: prompt`）。「新しい版に更新」→保存確認の後に再読込。キャンセル時は入力を保持する。既存のautoUpdate固定・変更見送りの記録より、この決定を優先する。
+- [実装判断] 画面下部にオフライン準備中・準備完了・失敗を表示。準備完了後に機内モードで確認する。
+- [実装判断] §4の「満タン時にしかリセットしない」は§9・README・画面と矛盾するため、既存実装どおり「部分給油を含め給油ごとにリセット」へ統一した。計算式・保存形式は変更しない。
+- 検証の現在地・実機の手順は `docs/ACCEPTANCE.md` に分離して更新する。初回実装をやり直さない。commit・pushは本人の明示指示後に実行する。

@@ -521,6 +521,8 @@ p {
 }
 
 /* --- モーション --- */
+.pwa-status { margin-top: 20px; }
+.pwa-status .hint { line-height: 1.6; }
 
 @media (prefers-reduced-motion: reduce) {
   * {

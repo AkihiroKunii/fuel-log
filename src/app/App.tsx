@@ -6,6 +6,7 @@ import { AppNavContext, type AppNavValue, type TabId } from './nav';
 import { RecordTab } from '../features/record/RecordTab';
 import { ListTab } from '../features/list/ListTab';
 import { EditSheet } from '../features/list/EditSheet';
+import { PwaStatus } from './PwaStatus';
 
 // グラフ(Recharts)は重いので別チャンクにし、起動直後の「記録」を軽くする。
 // チャンクは Service Worker が事前キャッシュするのでオフラインでも開ける。
@@ -44,6 +45,7 @@ function AppShell() {
             </Suspense>
           )}
           {tab === 'list' && <ListTab />}
+          <PwaStatus />
         </main>
         <TabBar />
       </div>
