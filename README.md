@@ -53,4 +53,4 @@ npm run icons         # PWAアイコン生成
 
 ## デプロイ
 
-main へ push すると GitHub Actions が自動的にテスト・ビルド・デプロイします。初回だけリポジトリの Settings → Pages → Source を「GitHub Actions」に変更してください。
+main へ push すると GitHub Actions が自動的にテスト・ビルド・デプロイします。PagesのSourceは「GitHub Actions」に設定済みです。

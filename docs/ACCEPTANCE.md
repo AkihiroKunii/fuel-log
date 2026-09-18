@@ -4,7 +4,7 @@
 
 ## 現在地
 
-既存の実装を維持して公開候補を作成した。GitHubリポジトリは未作成。commit・push・Pages公開と実機iPhone確認は未実施。
+既存の実装を維持して公開し、開発機で公開ページとPWAの準備完了まで確認した。残る利用開始前の確認は実機iPhoneだけ。
 
 | 項目 | 状態 | 証拠 |
 |---|---|---|
@@ -15,7 +15,7 @@
 | オフライン記録 | 開発機で完了 | 配信サーバー停止後、キャッシュから再起動し100 km/10 Lを保存。4件の一覧へ反映 |
 | JSON書き出し・復元 | 開発機で完了 | 4件を書き出し→全削除→同ファイルで復元。件数と値が一致 |
 | 更新時の入力保護 | 自動検証済み | 新版の到着だけでは再読込せず、本人が「新しい版に更新」へ同意した場合だけ更新。5件の単体テスト |
-| GitHub Pages | 未実施 | `AkihiroKunii/fuel-log` はまだ作成されていない |
+| GitHub Pages | 完了 | 公開リポジトリ `AkihiroKunii/fuel-log` を作成。commit `3d7e05e` のActionsでテスト・ビルド・deployに成功し、公開ページで「オフラインで使えます」を確認 |
 | 実機iPhone | 未実施 | ホーム画面追加、機内モード、共有シート、更新通知は公開後に確認する |
 
 ## 公開後にiPhoneで行う確認
@@ -30,12 +30,14 @@
 
 テスト用データは実データと混ぜない。実データが入った後に全削除試験を繰り返さない。
 
-## 公開作業
+## 公開作業（完了）
 
-VaultのGit運用ルールに従い、本人の明示指示後に行う。
+- [x] 変更をローカルcommit
+- [x] GitHubに公開リポジトリ `AkihiroKunii/fuel-log` を作成
+- [x] `origin`を追加して`main`をpush
+- [x] PagesをGitHub Actions方式に設定し、workflowのテスト・ビルド・deploy成功を確認
+- [x] 公開URLでアプリを開き、Service Workerの準備完了表示を確認
 
-1. 変更をローカルcommitする。
-2. GitHubに公開リポジトリ `AkihiroKunii/fuel-log` を作成する。
-3. `origin`を追加して`main`をpushする。
-4. PagesをGitHub Actions方式に設定し、workflowのテスト・ビルド・deploy成功を確認する。
-5. 公開URLでアプリ・manifest・Service Workerを確認してから、上の実機確認へ進む。
+公開URL: https://akihirokunii.github.io/fuel-log/
+
+初回公開のActions: https://github.com/AkihiroKunii/fuel-log/actions/runs/35344356818
